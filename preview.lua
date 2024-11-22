@@ -4,6 +4,7 @@ preview.hide_background = false
 
 function preview:init(mod, button, menu)
 	if MainMenu and not Kristal.PluginLoader then
+		---@diagnostic disable-next-line: inject-field
 		Kristal.PluginLoader = {
 			active = false,
 			script_chunks = {}
@@ -49,7 +50,7 @@ function preview:init(mod, button, menu)
 
 		local orig_up = Battle.update
 		local orig_init = Battle.init
-		Utils.hook(Registry, "initialize", function (orig, ...)
+		Utils.hook(Registry, "initialize", function (orig, preload)
 			local self = Registry
 			if not self.preload then
 				self.base_scripts = {}
@@ -102,6 +103,7 @@ function preview:init(mod, button, menu)
 			Hotswapper.updateFiles("registry")
 		end)
 		Utils.hook(Registry, "iterScripts", function (_, base_path, exclude_folder)
+			local self = Registry
 			local result = {}
 
 			CLASS_NAME_GETTER = function(k)
@@ -179,6 +181,11 @@ function preview:init(mod, button, menu)
 					parse("scripts/"..base_path, library.info.script_chunks)
 				end
 				parse("scripts/"..base_path, Mod.info.script_chunks)
+			end
+			for id, value in pairs(Kristal.PluginLoader.script_chunks) do
+				if Kristal.Config["plugins/enabled_plugins"][id] then
+					parse(base_path, value)
+				end
 			end
 
 			CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
