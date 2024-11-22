@@ -20,7 +20,7 @@ function preview:init(mod, button, menu)
 		---Whether any plugins are active. Mostly for the purpose of Deltaraid.
 		---@param ignorelist string[] List of plugins to ignore during the check.
 		---@return boolean active
-		function Kristal.PluginLoader:checkActive(ignorelist)
+		function Kristal.PluginLoader.checkActive(ignorelist)
 			ignorelist = ignorelist or {}
 			for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
 				for _, ignoretest in ipairs(ignorelist) do
