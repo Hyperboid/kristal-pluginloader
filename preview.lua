@@ -66,7 +66,7 @@ function preview:init(mod, button, menu)
 				for plugin_id, plugin in pairs(Kristal.Mods.data) do
 					if opt("enabled_plugins")[plugin.id] then
 						for _,path in ipairs(Utils.getFilesRecursive(plugin.path.."/scripts", ".lua")) do
-							local chunk = love.filesystem.load(mod.path.."/scripts/"..path..".lua")
+							local chunk = love.filesystem.load(plugin.path.."/scripts/"..path..".lua")
 							Kristal.PluginLoader:addScriptChunk(plugin_id, path, chunk)
 						end
 					end
