@@ -24,7 +24,7 @@ function preview:init(mod, button, menu)
 			ignorelist = ignorelist or {}
 			for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
 				for _, ignoretest in ipairs(ignorelist) do
-					if value == ignoretest then goto continue end
+					if key == ignoretest then goto continue end
 				end
 				if Kristal.Mods.getMod(key) and value then return true end
 			    ::continue::
