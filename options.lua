@@ -58,7 +58,7 @@ function PluginOptionsHandler:init(menu)
             function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end
             function option.callback() Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end
             if type(mod.plugin) == "table" and mod.plugin.menu then
-                function option.value() return ">>>" end
+                function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON >" or "OFF >" end
                 function option.callback() self.menu:setState(mod.plugin.menu) end
             end
             table.insert(self.options, option)
