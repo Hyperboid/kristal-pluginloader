@@ -49,9 +49,12 @@ function PluginOptionsHandler:init(menu)
     for _, mod in pairs(Kristal.Mods.getMods()) do
         local id = mod.id
         if mod.plugin then
-            
+            local name = mod.name
+            if type(mod.plugin) == "table" and mod.plugin.name then
+                name = mod.plugin.name
+            end
             table.insert(self.options, {
-                name = mod.name,
+                name = name,
                 value = function () return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end,
                 callback = function () Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end,
             })

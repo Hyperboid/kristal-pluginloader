@@ -52,5 +52,7 @@
         "kristal": {
         }
     },
-    "plugin": true
+    "plugin": {
+        "name": "Rename Ralsei"
+    }
 }
