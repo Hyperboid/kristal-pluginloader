@@ -208,8 +208,8 @@ function preview:init(mod, button, menu)
 	local loader = Kristal.PluginLoader
 	
 	if MainMenu and MainMenu.mod_list ~= Kristal.PluginLoader.mod_list then
-		local options = require(mod.path.."/options")
-		MainMenu.state_manager:addState("plugins", options(MainMenu))
+		local PluginOptionsHandler = require(mod.path.."/pluginoptionshandler")
+		MainMenu.state_manager:addState("plugins", PluginOptionsHandler(MainMenu))
 
 		Kristal.PluginLoader.mod_list = MainMenu.mod_list
 	end
