@@ -1,6 +1,5 @@
-# Everybody Bleeds
+# Plugin Loader
 
-A mod that makes any and all battles unnecessarily stressful.
+A kristal mod that loads other mods into other mods.
 
-
-Based on KyYay's Shatter mod. Inspired by [this DELTARUNE mod](https://gamebanana.com/mods/398639).
+Based on Everybody Bleeds, which itself is based on KyYay's Shatter mod.
