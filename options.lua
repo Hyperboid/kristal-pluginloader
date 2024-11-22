@@ -1,6 +1,6 @@
-local EbbOptions, super = Class(StateClass, "EbbOptions")
+local PluginOptionsHandler, super = Class(StateClass, "PluginOptionsHandler")
 
-function EbbOptions:init(menu)
+function PluginOptionsHandler:init(menu)
     self.menu = menu
 	
     self.scroll_target_y = 0
@@ -10,7 +10,7 @@ function EbbOptions:init(menu)
 	
 	local function yeahnah(val)
 		return function()
-			if Kristal.Config["ebb/"..val] then
+			if Kristal.Config["plugins/"..val] then
 				return "YES"
 			else
 				return "NO"
@@ -20,7 +20,7 @@ function EbbOptions:init(menu)
 	
 	local function toggle(val)
 		return function()
-			Kristal.Config["ebb/"..val] = not Kristal.Config["ebb/"..val]
+			Kristal.Config["plugins/"..val] = not Kristal.Config["plugins/"..val]
 		end
 	end
     local NyI = {
@@ -35,68 +35,50 @@ function EbbOptions:init(menu)
         return {
             name = name,
             value = function ()
-                return Kristal.Config["ebb/"..val]
+                return Kristal.Config["plugins/"..val]
             end,
             callback = function()
-                local index = Utils.getIndex(options, Kristal.Config["ebb/"..val])
+                local index = Utils.getIndex(options, Kristal.Config["plugins/"..val])
                 if index == nil then index = 0 end
                 index = ((index) % (#options)+1)
-                Kristal.Config["ebb/"..val] = options[index]
+                Kristal.Config["plugins/"..val] = options[index]
             end
         }
     end
-	
-	self.options = {
-		{
-			name = "Call :hurt()",
-			value = yeahnah("callhurt"),
-			callback = toggle("callhurt"),
-		},
-		{
-			name = "Stagger damage",
-			value = yeahnah("stagger"),
-			callback = toggle("stagger"),
-		},
-		{
-			name = "Rapid Hurting",
-			value = yeahnah("rapidtimer"),
-			callback = toggle("rapidtimer"),
-		},
-		{
-			name = "Overkill",
-			value = yeahnah("overkill"),
-			callback = toggle("overkill"),
-		},
-        enum("Graze Behavior", "graze_behavior", {"Heal", "Delay", "None"}),
-        enum("Active Turn", "active_turn", {"Player", "Enemy", "Both"}),
-        {
-            name = "Hurts to move",
-            value = yeahnah("hurts_to_move"),
-            callback = toggle("hurts_to_move"),
-        },
-        enum("Tick damage", "tick_damage", {1,5,10,20,25,30,40,50})
-	}
+	self.options = {}
+    for _, mod in pairs(Kristal.Mods.getMods()) do
+        local id = mod.id
+        if mod.plugin then
+            
+            table.insert(self.options, {
+                name = mod.name,
+                value = function () return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end,
+                callback = function () Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end,
+            })
+        end
+        
+    end
 end
 
-function EbbOptions:registerEvents()
+function PluginOptionsHandler:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
 end
 
-function EbbOptions:onEnter(old_state)
+function PluginOptionsHandler:onEnter(old_state)
     self.selected_option = 1
 
     self.scroll_target_y = 0
     self.scroll_y = 0
 end
 
-function EbbOptions:onLeave()
+function PluginOptionsHandler:onLeave()
 	Kristal.saveConfig()
 end
 
-function EbbOptions:onKeyPressed(key, is_repeat)
+function PluginOptionsHandler:onKeyPressed(key, is_repeat)
 	
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
@@ -157,13 +139,13 @@ function EbbOptions:onKeyPressed(key, is_repeat)
             Kristal.saveConfig()
 
             self.menu:setState("MODSELECT")
-        else
+        elseif options[self.selected_option].callback then
             options[self.selected_option].callback()
         end
     end
 end
 
-function EbbOptions:getHeartPos()
+function PluginOptionsHandler:getHeartPos()
     local options = self.options
     local max_option = #options + 1
 
@@ -181,7 +163,7 @@ function EbbOptions:getHeartPos()
     return x, y
 end
 
-function EbbOptions:update()
+function PluginOptionsHandler:update()
     local options = self.options
     local max_option = #options + 1
 
@@ -205,12 +187,12 @@ function EbbOptions:update()
     self.menu.heart_target_x, self.menu.heart_target_y = self:getHeartPos()
 end
 
-function EbbOptions:draw()
+function PluginOptionsHandler:draw()
     local menu_font = Assets.getFont("main")
 
     local options = self.options
 
-    local title = "CHALLENGE OPTIONS"
+    local title = "PLUGINS"
     local title_width = menu_font:getWidth(title)
 
     Draw.setColor(1, 1, 1)
@@ -259,4 +241,4 @@ function EbbOptions:draw()
     Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
 end
 
-return EbbOptions
+return PluginOptionsHandler

@@ -1,8 +1,8 @@
 {
     // The ID of your mod. Should be unique!!
-    "id": "everybodybleeds",
+    "id": "variantloader",
     // Displays on the main menu.
-    "name": "Everybody Bleeds",
+    "name": "Variant Loader",
     // Displays underneath the name. Optional.
     //"subtitle": "",
 
@@ -37,7 +37,8 @@
 
     // Should never be true, but just in case. Restarts the entire engine when leaving the mod.
     // If you need this, you're most likely doing something wrong.
-    "hardReset": false,
+    // oh i'm doing something wrong, that's for sure
+    "hardReset": true,
 
     // Whether the mod is hidden from the mod selection.
     "hidden": false,
@@ -50,5 +51,6 @@
     "config": {
         "kristal": {
         },
-    }
+    },
+    "plugin": true
 }
