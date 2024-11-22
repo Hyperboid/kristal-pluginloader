@@ -5,6 +5,7 @@ function PluginOptionsHandler:init(menu)
 	
     self.scroll_target_y = 0
     self.scroll_y = 0
+    self.selected_option = 1
 
     self.noise_timer = 0
 	
@@ -74,10 +75,12 @@ function PluginOptionsHandler:registerEvents()
 end
 
 function PluginOptionsHandler:onEnter(old_state)
-    self.selected_option = 1
+    if old_state == "MODSELECT" then
+        self.selected_option = 1
 
-    self.scroll_target_y = 0
-    self.scroll_y = 0
+        self.scroll_target_y = 0
+        self.scroll_y = 0
+    end
 end
 
 function PluginOptionsHandler:onLeave()
