@@ -207,8 +207,6 @@ function preview:init(mod, button, menu)
 	end
 	local loader = Kristal.PluginLoader
 	
-	local heart_broken = love.graphics.newImage(mod.path.."/heart_broken.png")
-
 	if MainMenu and MainMenu.mod_list ~= Kristal.PluginLoader.mod_list then
 		local options = require(mod.path.."/options")
 		MainMenu.state_manager:addState("plugins", options(MainMenu))
