@@ -53,6 +53,9 @@
         }
     },
     "plugin": {
-        "name": "Ralsei is Ralsea"
+        // Name to show up in the plugins list. If unset, defaults to the mod's name.
+        "name": "Ralsei is Ralsea",
+        // If set, visit a menu state instead of simply toggling.
+        //"menu": "OPTIONS"
     }
 }

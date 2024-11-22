@@ -53,11 +53,14 @@ function PluginOptionsHandler:init(menu)
             if type(mod.plugin) == "table" and mod.plugin.name then
                 name = mod.plugin.name
             end
-            table.insert(self.options, {
-                name = name,
-                value = function () return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end,
-                callback = function () Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end,
-            })
+            local option = { name = name }
+            function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end
+            function option.callback() Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end
+            if type(mod.plugin) == "table" and mod.plugin.menu then
+                function option.value() return ">>>" end
+                function option.callback() self.menu:setState(mod.plugin.menu) end
+            end
+            table.insert(self.options, option)
         end
         
     end
