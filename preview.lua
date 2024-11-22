@@ -218,17 +218,24 @@ function preview:init(mod, button, menu)
 
     button:setColor(1, 1, 1)
     button:setFavoritedColor(.8, .6, 1)
-
-	if not MainMenu then
-		button.subtitle = "(kristal version outdated! cannot run)"
-	else
-		button.subtitle = Utils.pick{
-			"CHAOS, CHAOS!",
-		}
-	end
+	self.button = button
 end
 
 function preview:update()
+	local count = 0
+	for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
+		if Kristal.Mods.getMod(key) and value then
+			count = count + 1
+		end
+	end
+	local function plural(number, word)
+		if number == 1 then
+			return number.." "..word
+		else
+			return number.." "..word.."s"
+		end
+	end
+	self.button.subtitle = plural(count, "plugin").." enabled"
 end
 
 function preview:draw()
