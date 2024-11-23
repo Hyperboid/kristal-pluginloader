@@ -206,20 +206,20 @@ function preview:init(mod, button, menu)
 		end)
 	end
 	local loader = Kristal.PluginLoader
-	
+
 	if MainMenu and MainMenu.mod_list ~= Kristal.PluginLoader.mod_list then
 		local PluginOptionsHandler = require(mod.path.."/pluginoptionshandler")
 		MainMenu.state_manager:addState("plugins", PluginOptionsHandler(MainMenu))
 
-		for _, mod in ipairs(Kristal.Mods.getMods()) do
-			if not mod.plugin then goto continue end
-			if not love.filesystem.getInfo(mod.path.."/options.lua") then goto continue end
-			local result = require(mod.path.."/options")
-			MainMenu.state_manager:addState("plugin_"..mod.id, result(MainMenu))
-		    ::continue::
-		end
-
 		Kristal.PluginLoader.mod_list = MainMenu.mod_list
+	end
+
+	for _, mod in ipairs(Kristal.Mods.getMods()) do
+		if not mod.plugin then goto continue end
+		if not love.filesystem.getInfo(mod.path.."/options.lua") then goto continue end
+		local result = love.filesystem.load(mod.path.."/options.lua")(mod)
+		MainMenu.state_manager:addState("plugin_"..mod.id, result(MainMenu))
+		::continue::
 	end
 
     button:setColor(1, 1, 1)
