@@ -211,6 +211,14 @@ function preview:init(mod, button, menu)
 		local PluginOptionsHandler = require(mod.path.."/pluginoptionshandler")
 		MainMenu.state_manager:addState("plugins", PluginOptionsHandler(MainMenu))
 
+		for _, mod in ipairs(Kristal.Mods.getMods()) do
+			if not mod.plugin then goto continue end
+			if not love.filesystem.getInfo(mod.path.."/options.lua") then goto continue end
+			local result = require(mod.path.."/options")
+			MainMenu.state_manager:addState("plugin_"..mod.id, result(MainMenu))
+		    ::continue::
+		end
+
 		Kristal.PluginLoader.mod_list = MainMenu.mod_list
 	end
 
