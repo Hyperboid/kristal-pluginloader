@@ -3,6 +3,7 @@ local PluginOptionsHandler, super = Class(StateClass, "PluginOptionsHandler")
 function PluginOptionsHandler:init(menu)
     self.menu = menu
 	
+    self.font = Assets.getFont("main")
     self.scroll_target_y = 0
     self.scroll_y = 0
     self.selected_option = 1
@@ -57,9 +58,20 @@ function PluginOptionsHandler:init(menu)
             local option = { name = name }
             function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end
             function option.callback() Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end
+            -- option.aux = option.callback
             if type(mod.plugin) == "table" and mod.plugin.menu then
-                function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON >" or "OFF >" end
-                function option.callback() self.menu:setState(mod.plugin.menu == true and "plugin_"..mod.id or mod.plugin.menu) end
+                local oldvalue = option.value
+                function option.value(x,y)
+                    if self.options[self.selected_option] == option then
+                        if Input.usingGamepad() then
+                            Draw.draw(Input.getTexture("menu"), x + self.font:getWidth(oldvalue() .. " > "),y + 3, 0, 2, 2)
+                        else
+                            return oldvalue() .. " > " .. Input.getText("menu")
+                        end
+                    end
+                    return oldvalue() .. " >"
+                end
+                function option.aux() self.menu:setState(mod.plugin.menu == true and "plugin_"..mod.id or mod.plugin.menu) end
             end
             table.insert(self.options, option)
         end
@@ -152,6 +164,14 @@ function PluginOptionsHandler:onKeyPressed(key, is_repeat)
             options[self.selected_option].callback()
         end
     end
+    if Input.isMenu(key) then
+        if self.selected_option == max_option then
+            -- do nothing
+        elseif options[self.selected_option].aux then
+            Assets.stopAndPlaySound("ui_select")
+            options[self.selected_option].aux()
+        end
+    end
 end
 
 function PluginOptionsHandler:getHeartPos()
@@ -197,7 +217,7 @@ function PluginOptionsHandler:update()
 end
 
 function PluginOptionsHandler:draw()
-    local menu_font = Assets.getFont("main")
+    local menu_font = self.font
 
     local options = self.options
 
