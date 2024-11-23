@@ -14,7 +14,7 @@ end
 
 function character:onLoad(data)
     self:addSpell("exampleplugin/dumb_prayer")
-    super.onLoad(data)
+    super.onLoad(self, data)
 end
 
 return character
