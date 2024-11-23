@@ -58,8 +58,14 @@ function PluginOptionsHandler:init(menu)
             local option = { name = name }
             function option.value() return Kristal.Config["plugins/enabled_plugins"][id] and "ON" or "OFF" end
             function option.callback() Kristal.Config["plugins/enabled_plugins"][id] = not Kristal.Config["plugins/enabled_plugins"][id] end
-            -- option.aux = option.callback
-            if type(mod.plugin) == "table" and mod.plugin.menu then
+            local pluginmenu = mod.plugin.menu
+            if pluginmenu == nil and love.filesystem.getInfo(mod.path.."/options.lua") then
+                pluginmenu = true
+            end
+            if pluginmenu == true then
+                pluginmenu = "plugin_"..mod.id
+            end
+            if type(mod.plugin) == "table" and pluginmenu then
                 local oldvalue = option.value
                 function option.value(x,y)
                     if self.options[self.selected_option] == option then
@@ -71,7 +77,7 @@ function PluginOptionsHandler:init(menu)
                     end
                     return oldvalue() .. " >"
                 end
-                function option.aux() self.menu:setState(mod.plugin.menu == true and "plugin_"..mod.id or mod.plugin.menu) end
+                function option.aux() self.menu:setState(pluginmenu) end
             end
             table.insert(self.options, option)
         end
