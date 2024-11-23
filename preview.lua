@@ -6,7 +6,6 @@ function preview:init(mod, button, menu)
 	if MainMenu and not Kristal.PluginLoader then
 		---@diagnostic disable-next-line: inject-field
 		Kristal.PluginLoader = {
-			active = false,
 			script_chunks = {}
 			--[[
 			options = {
