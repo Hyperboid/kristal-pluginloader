@@ -180,10 +180,10 @@ function preview:init(mod, button, menu)
 					parse("scripts/"..base_path, library.info.script_chunks)
 				end
 				parse("scripts/"..base_path, Mod.info.script_chunks)
-			end
-			for id, value in pairs(Kristal.PluginLoader.script_chunks) do
-				if Kristal.Config["plugins/enabled_plugins"][id] then
-					parse(base_path, value)
+				for id, value in pairs(Kristal.PluginLoader.script_chunks) do
+					if Kristal.Config["plugins/enabled_plugins"][id] then
+						parse(base_path, value)
+					end
 				end
 			end
 
