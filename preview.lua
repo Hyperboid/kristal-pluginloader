@@ -6,6 +6,7 @@ function preview:init(mod, button, menu)
 	if MainMenu and not Kristal.PluginLoader then
 		---@diagnostic disable-next-line: inject-field
 		Kristal.PluginLoader = {
+			plugin_scripts = {},
 			script_chunks = {}
 			--[[
 			options = {
@@ -15,6 +16,18 @@ function preview:init(mod, button, menu)
 		function Kristal.PluginLoader:addScriptChunk(mod_id, path, chunk)
 			if self.script_chunks[mod_id] == nil then self.script_chunks[mod_id] = {} end
 			self.script_chunks[mod_id][path] = chunk
+		end
+		function Kristal.PluginLoader.pluginCall(f, ...)
+			local result = {}
+			for plugin_id, plugin in pairs(Kristal.PluginLoader.plugin_scripts) do
+				if Kristal.Config["plugins/enabled_plugins"][plugin_id] and plugin[f] and type(plugin[f]) == "function" then
+					local plugin_results = {plugin[f](plugin, ...)}
+					if(#plugin_results > 0) then
+						result = plugin_results
+					end
+				end
+			end
+			return Utils.unpack(result)
 		end
 		---Whether any plugins are active. Mostly for the purpose of Deltaraid.
 		---@param ignorelist string[] List of plugins to ignore during the check.
@@ -67,6 +80,10 @@ function preview:init(mod, button, menu)
 						for _,path in ipairs(Utils.getFilesRecursive(plugin.path.."/scripts", ".lua")) do
 							local chunk = love.filesystem.load(plugin.path.."/scripts/"..path..".lua")
 							Kristal.PluginLoader:addScriptChunk(plugin_id, path, chunk)
+						end
+						if Mod and love.filesystem.getInfo(plugin.path.."/plugin.lua") then
+							local chunk = love.filesystem.load(plugin.path.."/plugin.lua")
+							Kristal.PluginLoader.plugin_scripts[plugin_id] = assert(chunk(), plugin.path.."/plugin.lua returned nil.")
 						end
 					end
 				end
@@ -201,6 +218,20 @@ function preview:init(mod, button, menu)
 					end
 					return full_path, result[i].path, unpack(result[i].out)
 				end
+			end
+		end)
+		Utils.hook(Kristal, "callEvent", function (_, f, ...)
+			if not Mod then return end
+			local lib_result = {Kristal.libCall(nil, f, ...)}
+			local mod_result = {Kristal.modCall(f, ...)}
+			local plugin_result = {Kristal.PluginLoader.pluginCall(f, ...)}
+			--print("EVENT: "..tostring(f), #mod_result, #lib_result)
+			if(#plugin_result > 0) then
+				return Utils.unpack(plugin_result)
+			elseif(#mod_result > 0) then
+				return Utils.unpack(mod_result)
+			else
+				return Utils.unpack(lib_result)
 			end
 		end)
 	end
