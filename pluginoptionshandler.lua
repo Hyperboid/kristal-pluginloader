@@ -112,7 +112,11 @@ function PluginOptionsHandler:onKeyPressed(key, is_repeat)
 
         Kristal.saveConfig()
 
-        self.menu:setState("MODSELECT")
+        if TARGET_MOD then
+            self.menu:setState("OPTIONS")
+        else
+            self.menu:setState("MODSELECT")
+        end
         return
     end
 
@@ -165,7 +169,11 @@ function PluginOptionsHandler:onKeyPressed(key, is_repeat)
             -- "Back" button
             Kristal.saveConfig()
 
-            self.menu:setState("MODSELECT")
+            if TARGET_MOD then
+                self.menu:setState("OPTIONS")
+            else
+                self.menu:setState("MODSELECT")
+            end
         elseif options[self.selected_option].callback then
             options[self.selected_option].callback()
         end

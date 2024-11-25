@@ -110,6 +110,14 @@ function preview:init(mod, button, menu)
 				Registry.initControllers()
 				Registry.initShops()
 				Registry.initBorders()
+				-- Needed in order to work for DPR.
+				-- TODO: Don't override Registry.initialize so I don't need to do this
+				local function tryInit(name)
+					if Registry["init"..name] then Registry["init"..name]() end
+				end
+				tryInit("Minigames")
+				tryInit("Combos")
+				tryInit("Quests")
 		
 				Kristal.callEvent(KRISTAL_EVENT.onRegistered)
 			end
