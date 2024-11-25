@@ -13,6 +13,22 @@ function preview:init(mod, button, menu)
 				textures = Kristal.Config["ebb/textures"] or true
 			}]]
 		}
+		---@return fun(): table, boolean
+		function Kristal.PluginLoader.iterPlugins(active_only)
+			local index = 0
+			local all_mods = Kristal.Mods.getMods()
+			return function()
+				repeat
+					index = index + 1
+					if index > #all_mods then return nil end
+					if all_mods[index].plugin then
+						if Kristal.Config["plugins/enabled_plugins"][all_mods[index].id] or (active_only ~= true) then
+							return all_mods[index], Kristal.Config["plugins/enabled_plugins"][all_mods[index].id]
+						end
+					end
+				until index > #all_mods
+			end
+		end
 		function Kristal.PluginLoader:addScriptChunk(mod_id, path, chunk)
 			if self.script_chunks[mod_id] == nil then self.script_chunks[mod_id] = {} end
 			self.script_chunks[mod_id][path] = chunk
@@ -181,6 +197,7 @@ function preview:init(mod, button, menu)
 				end
 			end
 		end)
+		love.filesystem.load(mod.path.."/assetsloader.lua")()
 		Utils.hook(Kristal, "callEvent", function (_, f, ...)
 			if not Mod then return end
 			local lib_result = {Kristal.libCall(nil, f, ...)}
