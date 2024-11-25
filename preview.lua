@@ -64,67 +64,20 @@ function preview:init(mod, button, menu)
 		local orig_init = Battle.init
 		Utils.hook(Registry, "initialize", function (orig, preload)
 			local self = Registry
-			if not self.preload then
-				self.base_scripts = {}
-		
-				local chapter = Kristal.getModOption("chapter") or 2
-				Game.chapter = chapter
-		
-				for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
-					local chunk = love.filesystem.load("data/"..path..".lua")
-					self.base_scripts["data/"..path] = chunk
-				end
-
-				for plugin_id, plugin in pairs(Kristal.Mods.data) do
-					if opt("enabled_plugins")[plugin.id] then
-						for _,path in ipairs(Utils.getFilesRecursive(plugin.path.."/scripts", ".lua")) do
-							local chunk = love.filesystem.load(plugin.path.."/scripts/"..path..".lua")
-							Kristal.PluginLoader:addScriptChunk(plugin_id, path, chunk)
-						end
-						if Mod and love.filesystem.getInfo(plugin.path.."/plugin.lua") then
-							local chunk = love.filesystem.load(plugin.path.."/plugin.lua")
-							Kristal.PluginLoader.plugin_scripts[plugin_id] = assert(chunk(), plugin.path.."/plugin.lua returned nil.")
-						end
+			Kristal.PluginLoader.script_chunks = {}
+			for plugin_id, plugin in pairs(Kristal.Mods.data) do
+				if opt("enabled_plugins")[plugin.id] then
+					for _,path in ipairs(Utils.getFilesRecursive(plugin.path.."/scripts", ".lua")) do
+						local chunk = love.filesystem.load(plugin.path.."/scripts/"..path..".lua")
+						Kristal.PluginLoader:addScriptChunk(plugin_id, path, chunk)
+					end
+					if Mod and love.filesystem.getInfo(plugin.path.."/plugin.lua") then
+						local chunk = love.filesystem.load(plugin.path.."/plugin.lua")
+						Kristal.PluginLoader.plugin_scripts[plugin_id] = assert(chunk(), plugin.path.."/plugin.lua returned nil.")
 					end
 				end
-
-				Registry.initActors()
 			end
-			if not preload then
-				Registry.initGlobals()
-				Registry.initObjects()
-				Registry.initDrawFX()
-				Registry.initItems()
-				Registry.initSpells()
-				Registry.initPartyMembers()
-				Registry.initRecruits()
-				Registry.initEncounters()
-				Registry.initEnemies()
-				Registry.initWaves()
-				Registry.initBullets()
-				Registry.initCutscenes()
-				Registry.initEventScripts()
-				Registry.initTilesets()
-				Registry.initMaps()
-				Registry.initEvents()
-				Registry.initControllers()
-				Registry.initShops()
-				Registry.initBorders()
-				-- Needed in order to work for DPR.
-				-- TODO: Don't override Registry.initialize so I don't need to do this
-				local function tryInit(name)
-					if Registry["init"..name] then Registry["init"..name]() end
-				end
-				tryInit("Minigames")
-				tryInit("Combos")
-				tryInit("Quests")
-		
-				Kristal.callEvent(KRISTAL_EVENT.onRegistered)
-			end
-		
-			self.preload = preload
-		
-			Hotswapper.updateFiles("registry")
+			orig(preload)
 		end)
 		Utils.hook(Registry, "iterScripts", function (_, base_path, exclude_folder)
 			local self = Registry
