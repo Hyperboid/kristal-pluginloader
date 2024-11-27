@@ -46,18 +46,21 @@ function preview:init(mod, button, menu)
 			return Utils.unpack(result)
 		end
 		---Whether any plugins are active. Mostly for the purpose of Deltaraid.
-		---@param ignorelist string[] List of plugins to ignore during the check.
+		---@param ignorelist? string[] List of plugins to ignore during the check.
 		---@return boolean active
+		---@return table[] banned_plugins
 		function Kristal.PluginLoader.checkActive(ignorelist)
 			ignorelist = ignorelist or {}
+			local banned_plugins = {}
 			for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
 				for _, ignoretest in ipairs(ignorelist) do
 					if key == ignoretest then goto continue end
 				end
-				if Kristal.Mods.getMod(key) and value then return true end
+				local plugin = Kristal.Mods.getMod(key)
+				if plugin and value then table.insert(banned_plugins, plugin) end
 			    ::continue::
 			end
-			return false
+			return (#banned_plugins > 0), banned_plugins
 		end
 
 		local function check(setting, default)
