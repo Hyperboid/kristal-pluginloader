@@ -13,7 +13,7 @@ function preview:init(mod, button, menu)
 				textures = Kristal.Config["ebb/textures"] or true
 			}]]
 		}
-		---@return fun(): table, boolean
+		---@return fun(): table, boolean, table
 		function Kristal.PluginLoader.iterPlugins(active_only)
 			local index = 0
 			local all_mods = Kristal.Mods.getMods()
@@ -23,7 +23,9 @@ function preview:init(mod, button, menu)
 					if index > #all_mods then return nil end
 					if all_mods[index].plugin then
 						if Kristal.Config["plugins/enabled_plugins"][all_mods[index].id] or (active_only ~= true) then
-							return all_mods[index], Kristal.Config["plugins/enabled_plugins"][all_mods[index].id]
+							return all_mods[index],
+								Kristal.Config["plugins/enabled_plugins"][all_mods[index].id],
+								Kristal.PluginLoader.plugin_scripts[all_mods[index].id] or {}
 						end
 					end
 				until index > #all_mods
@@ -35,8 +37,8 @@ function preview:init(mod, button, menu)
 		end
 		function Kristal.PluginLoader.pluginCall(f, ...)
 			local result = {}
-			for plugin_id, plugin in pairs(Kristal.PluginLoader.plugin_scripts) do
-				if Kristal.Config["plugins/enabled_plugins"][plugin_id] and plugin[f] and type(plugin[f]) == "function" then
+			for _,_,plugin in Kristal.PluginLoader.iterPlugins(true) do
+				if plugin[f] then
 					local plugin_results = {plugin[f](plugin, ...)}
 					if(#plugin_results > 0) then
 						result = plugin_results
@@ -52,12 +54,13 @@ function preview:init(mod, button, menu)
 		function Kristal.PluginLoader.checkActive(ignorelist)
 			ignorelist = ignorelist or {}
 			local banned_plugins = {}
-			for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
+			for plugin in Kristal.PluginLoader.iterPlugins(true) do
+				local key = plugin.id
 				for _, ignoretest in ipairs(ignorelist) do
 					if key == ignoretest then goto continue end
 				end
 				local plugin = Kristal.Mods.getMod(key)
-				if plugin and value then table.insert(banned_plugins, plugin) end
+				table.insert(banned_plugins, plugin)
 			    ::continue::
 			end
 			return (#banned_plugins > 0), banned_plugins
@@ -177,10 +180,9 @@ function preview:init(mod, button, menu)
 					parse("scripts/"..base_path, library.info.script_chunks)
 				end
 				parse("scripts/"..base_path, Mod.info.script_chunks)
-				for id, value in pairs(Kristal.PluginLoader.script_chunks) do
-					if Kristal.Config["plugins/enabled_plugins"][id] then
-						parse(base_path, value)
-					end
+				for plugin,_,_ in Kristal.PluginLoader.iterPlugins(true) do
+					local value = Kristal.PluginLoader.script_chunks[plugin.id]
+					parse(base_path, value)
 				end
 			end
 
@@ -239,12 +241,7 @@ function preview:init(mod, button, menu)
 end
 
 function preview:update()
-	local count = 0
-	for key, value in pairs(Kristal.Config["plugins/enabled_plugins"]) do
-		if Kristal.Mods.getMod(key) and value then
-			count = count + 1
-		end
-	end
+	local count = #(({Kristal.PluginLoader.checkActive()})[2])
 	local function plural(number, word)
 		if number == 1 then
 			return number.." "..word
