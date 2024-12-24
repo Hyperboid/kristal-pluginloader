@@ -2,6 +2,12 @@ local preview = {}
 
 preview.hide_background = false
 
+-- thanks jamm, this is totally better thanks replacing 7 bytes in conf.lua
+-- i mean i guess it could be annoying to ask everyone to move their savedata BUT STILL THIS SHOULD'VE NEVER BEEN A PROBLEM AAHHHH
+if TARGET_MOD and Utils.startsWith(TARGET_MOD, "acj_deoxynn/") then
+	return preview
+end
+
 function preview:init(mod, button, menu)
 	if MainMenu and not Kristal.PluginLoader then
 		---@diagnostic disable-next-line: inject-field
