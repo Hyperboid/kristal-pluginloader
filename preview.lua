@@ -83,8 +83,9 @@ function preview:init(mod, button, menu)
 		Utils.hook(Kristal, "loadMod", function(orig, id, ...)
 			if id == mod.id then
 				MainMenu:setState("plugins")
+				return true
 			else
-				orig(id, ...)
+				return orig(id, ...)
 			end
 		end)
 
